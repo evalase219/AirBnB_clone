@@ -25,7 +25,7 @@ $ ./console.py
 (hbnb) help
 
 Documented commands (type help <topic>):
-========================================
+
 EOF  help  quit
 
 (hbnb)
@@ -39,7 +39,7 @@ $ echo "help" | ./console.py
 (hbnb)
 
 Documented commands (type help <topic>):
-========================================
+
 EOF  help  quit
 (hbnb)
 $
