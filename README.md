@@ -17,9 +17,10 @@ The Command interpreter basically will be used to manage(create, update, destroy
 be used. It takes in a command, (provided it's a valid command) parse it and give it to the appropriate
 command handler to handle the needed processes.
 
-<h4>example</h4>:
+<h4>example:</h4>
 
-<h4>Interactive mode =></h4>
+<h4>Interactive mode => </h4>
+
 $ ./console.py
 (hbnb) help
 
@@ -32,7 +33,8 @@ EOF  help  quit
 (hbnb) quit
 $
 
-<h4>Non-interactive mode =></h4>
+<h4>Non-interactive mode => </h4>
+
 $ echo "help" | ./console.py
 (hbnb)
 
