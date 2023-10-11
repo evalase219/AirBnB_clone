@@ -12,11 +12,27 @@ from datetime import datetime
 
 class BaseModel:
     """This model defines all common attributes/methods for other classes"""
-    def __init__(self):
-        """Initializes all class instances"""
-        self.id = str(uuid.uuid4())  # Create a unique id for each instance
-        self.created_at = datetime.now()  # Keep track of created date and time
-        self.updated_at = datetime.now()
+    def __init__(self, *args, **kwargs):
+        """Initializes all class instances
+
+        Args:
+            args (tuple): a tuple of argument names(currently not in use)
+            kwargs (dict): key/value pairs representing attribute name & value
+        """
+        if kwargs:
+            for key in kwargs:  # key=>attribute name, value=>attribute value
+                if key != "__class__":  # all except for the `__class__` key
+
+                    # convert these attributes from str back to datetime format
+                    if key == "created_at" or key == "updated_at":
+                        self.__dict__[key] = datetime.strptime(
+                            kwargs[key], "%Y-%m-%dT%H:%M:%S.%f")
+                    else:
+                        self.__dict__[key] = kwargs[key]
+        else:
+            self.id = str(uuid.uuid4())  # Create a unique id for each instance
+            self.created_at = datetime.now()  # track created date & time
+            self.updated_at = datetime.now()
 
     def __str__(self):
         """Return the class_name, id and dict of the created instance"""
