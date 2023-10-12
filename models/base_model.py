@@ -8,6 +8,7 @@ package is defined.
 
 import uuid
 from datetime import datetime
+from models.__init__ import storage
 
 
 class BaseModel:
@@ -17,7 +18,7 @@ class BaseModel:
 
         Args:
             args (tuple): a tuple of argument names(currently not in use)
-            kwargs (dict): key/value pairs representing attribute name & value
+            kwargs (dict): key/value pairs representing attribute name : value
         """
         if kwargs:
             for key in kwargs:  # key=>attribute name, value=>attribute value
@@ -33,6 +34,7 @@ class BaseModel:
             self.id = str(uuid.uuid4())  # Create a unique id for each instance
             self.created_at = datetime.now()  # track created date & time
             self.updated_at = datetime.now()
+            storage.new(self)
 
     def __str__(self):
         """Return the class_name, id and dict of the created instance"""
@@ -40,6 +42,7 @@ class BaseModel:
 
     def save(self):
         """Update the `updated_at` attribute"""
+        storage.save()
         self.updated_at = datetime.now()
 
     def to_dict(self):
