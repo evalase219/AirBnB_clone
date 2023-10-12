@@ -8,7 +8,7 @@ package is defined.
 
 import uuid
 from datetime import datetime
-from models.__init__ import storage
+import importlib
 
 
 class BaseModel:
@@ -34,6 +34,7 @@ class BaseModel:
             self.id = str(uuid.uuid4())  # Create a unique id for each instance
             self.created_at = datetime.now()  # track created date & time
             self.updated_at = datetime.now()
+            storage = importlib.import_module("models.__init__").storage
             storage.new(self)
 
     def __str__(self):
@@ -42,13 +43,17 @@ class BaseModel:
 
     def save(self):
         """Update the `updated_at` attribute"""
+        storage = importlib.import_module("models.__init__").storage
         storage.save()
         self.updated_at = datetime.now()
 
     def to_dict(self):
         """Return a dict of attribute names of the instance"""
         self.__dict__['__class__'] = self.__class__.__name__
-        self.created_at = self.created_at.isoformat()
-        self.updated_at = self.updated_at.isoformat()
+
+        if isinstance(self.created_at, datetime) and isinstance(
+                self.updated_at, datetime):
+            self.created_at = self.created_at.isoformat()
+            self.updated_at = self.updated_at.isoformat()
 
         return self.__dict__

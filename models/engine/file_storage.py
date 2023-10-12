@@ -7,6 +7,7 @@ and persisting all created class instances of the application
 """
 
 import json
+import importlib
 
 
 class FileStorage:
@@ -30,19 +31,27 @@ class FileStorage:
             obj (object): object to process
         """
         if obj:
-            FileStorage.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj.to_dict()
+            FileStorage.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj
 
     def save(self):
         """Serialize `__objects` to JSON file `__file_path`"""
         with open(f"{FileStorage.__file_path}", 'w') as json_file:
-            print("Loading into file.......")
-            json.dump(FileStorage.__objects, json_file)
+
+            capture = {key_id: obj.to_dict() for key_id, obj in
+                       FileStorage.__objects.items()}
+            json.dump(capture, json_file)
 
     def reload(self):
         """Deserialize JSON file `__file_path` to __objects"""
         try:
             with open(f"{FileStorage.__file_path}", 'r') as json_file:
-                print("Reloading file.......")
-                FileStorage.__objects = json.load(json_file)
+                holder = json.load(json_file)
+
+                Base = None
+
+                Base = importlib.import_module('models.base_model')
+
+                FileStorage.__objects = {key_id: Base.BaseModel(obj)
+                                         for key_id, obj in holder.items()}
         except FileNotFoundError:
             pass  # if the file does not exist don't do anything
