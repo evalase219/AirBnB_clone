@@ -15,12 +15,61 @@ class HBNBCommand(cmd.Cmd):
 
     prompt = "(hbnb) "
 
+    @staticmethod
+    def mould(args, action):
+        """
+        This is a template for `show()` and `destroy()`. Since they
+        have the same structure, all processes will be carried out
+        in this method and the final execution will be defined by
+        the `action` argument.
+
+        Args:
+            args (str): String of arguments seperated by space
+            action (str): flag to decide whether to print or delete
+        """
+        splited = args.split(" ")
+
+        if splited[0] == "":
+            print("** class name missing **")
+        elif splited[0] != "BaseModel":
+            print("** class doesn't exist **")
+        elif len(splited) == 1:
+            print("** instance id missing **")
+        else:
+
+            class_name, obj_id = splited[0], splited[1]
+            memory = FileStorage()  # create an instance of FileStorage
+            mem_dict = memory.all()  # get __objects attribute of FileStorage
+
+            # Search for the instance by the key: <class_name>.<obj_id>
+            # in __objects dictionary of stored objects
+            found_dict = {key_id: obj for key_id, obj in mem_dict.items()
+                          if key_id == f"{class_name}.{obj_id}"}
+
+            found_obj = [obj for obj in found_dict.values()]  # extract object
+            found_key = [obj for obj in found_dict.keys()]  # extract key
+
+            if action == "print":
+                print("** no instance found**") if found_dict == {} else print(
+                    found_obj[0])  # print obj if obj exist else print err msg
+            else:
+                if found_dict == {}:
+                    print("** no instance found **")
+                else:
+                    del mem_dict[found_key[0]]
+                # print obj if obj exist else print the err msg
+
     def do_create(self, class_name):
         """
         Create an instance of the given class
 
         Args:
             class_name (str): name of class to create an instance of
+
+        Usage: [class name]
+
+               Enter class name to be created
+               Upon success, the id of the insatnce will be printed out
         """
         if class_name == "BaseModel":
             new_obj = BaseModel()
@@ -42,29 +91,21 @@ class HBNBCommand(cmd.Cmd):
 
                Enter class name and id of the instance to show
         """
-        splited = args.split(" ")
+        HBNBCommand.mould(args, "print")
 
-        if splited[0] == "":
-            print("** class name missing **")
-        elif splited[0] != "BaseModel":
-            print("** class doesn't exist **")
-        elif len(splited) == 1:
-            print("** instance id missing **")
-        else:
+    def do_destroy(self, arg):
+        """
+        Remove instances from storage
 
-            class_name, obj_id = splited[0], splited[1]
-            memory = FileStorage()  # create an instance of FileStorage
-            mem_dict = memory.all()  # get __objects attribute of FileStorage
+        Args:
+            args (str): String of arguments seperated by space
 
-            # Search for the instance by the key <class_name>.<obj_id>
-            # in __objects dictionary of stored objects
-            found_dict = {key_id: obj for key_id, obj in mem_dict.items()
-                          if key_id == f"{class_name}.{obj_id}"}
+        Usage: [class name] [instance id]
 
-            found_obj = [obj for obj in found_dict.values()]  # extract object
+               Enter class name and id of the instance to remove
+        """
 
-            print("** no instance found **") if found_dict == {} else print(
-                found_obj[0])  # print obj if obj exist else print the err msg
+        HBNBCommand.mould(arg, "delete")
 
     def do_quit(self, line):
         """Quit command exits program"""
