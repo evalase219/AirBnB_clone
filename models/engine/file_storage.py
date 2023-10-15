@@ -18,6 +18,43 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
 
+    @staticmethod
+    def cls_selector(**obj):
+        """
+        Select the appropriate class to handle deserialization
+
+        Args:
+            obj (dict): dictionary of the given instance
+
+        Return:
+            the correct class to be used
+        """
+        Base = None
+
+        if obj['__class__'] == "BaseModel":
+            Base = importlib.import_module('models.base_model')
+            return Base.BaseModel(**obj)
+        elif obj['__class__'] == "User":
+            Base = importlib.import_module('models.user')
+            return Base.User(**obj)
+        elif obj['__class__'] == "State":
+            Base = importlib.import_module('models.state')
+            return Base.State(**obj)
+        elif obj['__class__'] == "City":
+            Base = importlib.import_module('models.city')
+            return Base.City(**obj)
+        elif obj['__class__'] == "Amenity":
+            Base = importlib.import_module('models.amenity')
+            return Base.Amenity(**obj)
+        elif obj['__class__'] == "Place":
+            Base = importlib.import_module('models.place')
+            return Base.Place(**obj)
+        elif obj['__class__'] == "Review":
+            Base = importlib.import_module('models.review')
+            return Base.Review(**obj)
+        else:
+            return Base
+
     def all(self):
         """Returns the dictionary: (__objects) """
         return FileStorage.__objects
@@ -47,9 +84,8 @@ class FileStorage:
             with open(f"{FileStorage.__file_path}", 'r') as json_file:
                 self.hold = json.load(json_file)
 
-                Base = None
-                Base = importlib.import_module('models.base_model')
-                FileStorage.__objects = {key_id: Base.BaseModel(**obj)
+                class_selector = FileStorage.cls_selector
+                FileStorage.__objects = {key_id: class_selector(**obj)
                                          for key_id, obj in self.hold.items()}
         except FileNotFoundError:
             pass  # if the file does not exist don't do anythinga
