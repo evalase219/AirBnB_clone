@@ -82,5 +82,32 @@ class TestBaseModel(unittest.TestCase):
             "updated_at": "2023-10-14T22:55:45.123456"
             }
         self.assertTrue(check_created_at_updated_at_iso_format(to_dict_result))
+
+    def test_created_at_updated_at_are_datetime_instances(self):
+        """Check if created_at and updated_at are instances"""
+        base_model = BaseModel()
+        self.assertTrue(isinstance(base_model.created_at, datetime))
+        self.assertTrue(isinstance(base_model.updated_at, datetime))
+
+    def test_to_dict_result_is_dictionary(self):
+        """Check if the result is in dictionary format"""
+        base_model = BaseModel()
+        to_dict_result = base_model.to_dict()
+        self.assertIsInstance(to_dict_result, dict)
+
+    def test_to_dict_result_has_class_name_key(self):
+        """Check if the key name is in dictionary format"""
+        base_model = BaseModel()
+        to_dict_result = base_model.to_dict()
+        self.assertIn('__class__', to_dict_result)
+
+    def test_obj_id_is_equal_to_another_obj_id_created_when_kwargs(self):
+        base_model = BaseModel(id="1234567890")
+        another_base_model = BaseModel(id="1234567890")
+        self.assertEqual(base_model.id, another_base_model.id)
+
+    def test_obj_id_is_not_empty(self):
+        base_model = BaseModel()
+        self.assertIsNotNone(base_model.id)
 if __name__ == "__main__":
     unittest.main()
