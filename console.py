@@ -8,6 +8,10 @@ The console program is defined here
 import cmd
 from models.base_model import BaseModel
 from models.user import User
+from models.city import City
+from models.state import State
+from models.amenity import Amenity
+from models.review import Review
 from models.__init__ import storage
 
 
@@ -15,7 +19,8 @@ class HBNBCommand(cmd.Cmd):
     """Command interpretrer class"""
 
     prompt = "(hbnb) "
-    domestic_classes = ["BaseModel", "User"]
+    domestic_classes = ["BaseModel", "User", "City",
+                        "State", "Place", "Review", "Amenity"]
 
     @staticmethod
     def mould(args, action):
@@ -72,7 +77,7 @@ class HBNBCommand(cmd.Cmd):
             The appropraite type
         """
         if txt[0] == '\"' and txt[-1] == '\"':
-            txt = txt[1:-1]
+            txt = txt[1:-1]  # get rid of the dobule quotes
 
         if txt.isdigit():
             return int(txt)
@@ -109,6 +114,26 @@ class HBNBCommand(cmd.Cmd):
                 new_obj = User()
                 new_obj.save()
                 print(new_obj.id)
+            elif class_name == "State":
+                new_obj = State()
+                new_obj.save()
+                print(new_obj.id)
+            elif class_name == "City":
+                new_obj = City()
+                new_obj.save()
+                print(new_obj.id)
+            elif class_name == "Amenity":
+                new_obj = Amenity()
+                new_obj.save()
+                print(new_obj.id)
+            elif class_name == "Place":
+                new_obj = Place()
+                new_obj.save()
+                print(new_obj.id)
+            elif class_name == "Review":
+                new_obj = Review()
+                new_obj.save()
+                print(new_obj.id)
 
     def do_show(self, args):
         """
@@ -139,7 +164,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, class_name):
         """
-        Print a list of all string representation of all the objects in:
+        Print a list of string representation of all the objects in:
         i. The class if a class name is given
         ii. All classes currently within storage if no class name is given
 
@@ -150,15 +175,12 @@ class HBNBCommand(cmd.Cmd):
 
                Enter the class name to print
         """
-
-        # create an instance of FileStorage
         mem_dict = storage.all()  # get __objects attribute of FileStorage
 
         if class_name != "":
             # in __objects dictionary of stored objects
             found_dict = {key_id: obj for key_id, obj in mem_dict.items()
                           if key_id.startswith(f"{class_name}")}
-
             if found_dict == {}:
                 print("** class doesn't exist **")
             else:
@@ -221,7 +243,6 @@ class HBNBCommand(cmd.Cmd):
             obj = obj.to_dict()
             obj = storage.cls_selector(**obj)  # select the correct class
             # to handle the deserialization of the object
-            print(obj)
             obj.save()
 
     def do_quit(self, line):

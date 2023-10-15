@@ -34,10 +34,24 @@ class FileStorage:
         if obj['__class__'] == "BaseModel":
             Base = importlib.import_module('models.base_model')
             return Base.BaseModel(**obj)
-
         elif obj['__class__'] == "User":
             Base = importlib.import_module('models.user')
             return Base.User(**obj)
+        elif obj['__class__'] == "State":
+            Base = importlib.import_module('models.state')
+            return Base.State(**obj)
+        elif obj['__class__'] == "City":
+            Base = importlib.import_module('models.city')
+            return Base.City(**obj)
+        elif obj['__class__'] == "Amenity":
+            Base = importlib.import_module('models.amenity')
+            return Base.Amenity(**obj)
+        elif obj['__class__'] == "Place":
+            Base = importlib.import_module('models.place')
+            return Base.Place(**obj)
+        elif obj['__class__'] == "Review":
+            Base = importlib.import_module('models.review')
+            return Base.Review(**obj)
         else:
             return Base
 
