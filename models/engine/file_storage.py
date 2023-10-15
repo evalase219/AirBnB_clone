@@ -37,21 +37,19 @@ class FileStorage:
         """Serialize `__objects` to JSON file `__file_path`"""
         with open(f"{FileStorage.__file_path}", 'w') as json_file:
 
-            capture = {key_id: obj.to_dict() for key_id, obj in
-                       FileStorage.__objects.items()}
-            json.dump(capture, json_file)
+            self.capture = {key_id: obj.to_dict() for key_id, obj in
+                            FileStorage.__objects.items()}
+            json.dump(self.capture, json_file)
 
     def reload(self):
         """Deserialize JSON file `__file_path` to __objects"""
         try:
             with open(f"{FileStorage.__file_path}", 'r') as json_file:
-                holder = json.load(json_file)
+                self.hold = json.load(json_file)
 
                 Base = None
-
                 Base = importlib.import_module('models.base_model')
-
-                FileStorage.__objects = {key_id: Base.BaseModel(obj)
-                                         for key_id, obj in holder.items()}
+                FileStorage.__objects = {key_id: Base.BaseModel(**obj)
+                                         for key_id, obj in self.hold.items()}
         except FileNotFoundError:
-            pass  # if the file does not exist don't do anything
+            pass  # if the file does not exist don't do anythinga
