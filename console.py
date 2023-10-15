@@ -7,7 +7,7 @@ The console program is defined here
 
 import cmd
 from models.base_model import BaseModel
-from models.engine.file_storage import FileStorage
+from models.__init__ import storage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -27,6 +27,7 @@ class HBNBCommand(cmd.Cmd):
             args (str): String of arguments seperated by space
             action (str): flag to decide whether to print or delete
         """
+
         splited = args.split(" ")
 
         if splited[0] == "":
@@ -38,8 +39,7 @@ class HBNBCommand(cmd.Cmd):
         else:
 
             class_name, obj_id = splited[0], splited[1]
-            memory = FileStorage()  # create an instance of FileStorage
-            mem_dict = memory.all()  # get __objects attribute of FileStorage
+            mem_dict = storage.all()  # get __objects attribute of FileStorage
 
             # Search for the instance by the key: <class_name>.<obj_id>
             # in __objects dictionary of stored objects
@@ -57,7 +57,29 @@ class HBNBCommand(cmd.Cmd):
                     print("** no instance found **")
                 else:
                     del mem_dict[found_key[0]]
-                # print obj if obj exist else print the err msg
+
+    @staticmethod
+    def convector(txt):
+        """
+        Converts the given str into int, float or string
+
+        Args:
+           txt (str): string to be converted
+
+        Return:
+            The appropraite type
+        """
+        if txt[0] == '\"' and txt[-1] == '\"':
+            txt = txt[1:-1]
+
+        if txt.isdigit():
+            return int(txt)
+        else:
+            try:
+                txt = float(txt)
+                return txt
+            except ValueError:
+                return txt
 
     def do_create(self, class_name):
         """
@@ -66,7 +88,7 @@ class HBNBCommand(cmd.Cmd):
         Args:
             class_name (str): name of class to create an instance of
 
-        Usage: [class name]
+        Usage: create <class name>
 
                Enter class name to be created
                Upon success, the id of the insatnce will be printed out
@@ -87,7 +109,7 @@ class HBNBCommand(cmd.Cmd):
         Args:
             args (str): String of arguments seperated by space
 
-        Usage: [class name] [instance id]
+        Usage: show <class name> <instance id>
 
                Enter class name and id of the instance to show
         """
@@ -100,12 +122,97 @@ class HBNBCommand(cmd.Cmd):
         Args:
             args (str): String of arguments seperated by space
 
-        Usage: [class name] [instance id]
+        Usage: destroy <class name> <instance id>
 
                Enter class name and id of the instance to remove
         """
 
         HBNBCommand.mould(arg, "delete")
+
+    def do_all(self, class_name):
+        """
+        Print a list of all string representation of all the objects in:
+        i. The class if a class name is given
+        ii. All classes currently within storage if no class name is given
+
+        Args:
+            class_name (str): class whose objects is to be printed
+
+        Usage: all [class name]
+
+               Enter the class name to print
+        """
+
+        # create an instance of FileStorage
+        mem_dict = storage.all()  # get __objects attribute of FileStorage
+
+        if class_name != "":
+            # in __objects dictionary of stored objects
+            found_dict = {key_id: obj for key_id, obj in mem_dict.items()
+                          if key_id.startswith(f"{class_name}")}
+
+            if found_dict == {}:
+                print("** class doesn't exist **")
+            else:
+                found_obj = [obj for obj in found_dict.values()]  # extract obj
+                found_obj = [obj.__str__() for obj in found_obj]
+                print(found_obj)
+        else:
+            all_obj = [obj for obj in mem_dict.values()]  # extract object
+            all_obj = [obj.__str__() for obj in all_obj]  # convert to str rep
+            print(all_obj)
+
+    def do_update(self, args):
+        """
+        Create or Upadate an attribute of an instance by the given
+        class name and id.
+
+        Args:
+            args (str): String of arguments seperated by space
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
+
+               The attribute of the instance <class name>.<id> will be created
+               or updated with the given <attribute name>: "<attribute value>"
+
+        """
+
+        splited = args.split(" ")
+
+        if len(splited) >= 2:
+            class_name, obj_id = splited[0], splited[1]
+            # create an instance of FileStorage
+            mem_dict = storage.all()  # get __objects attribute of FileStorage
+
+            found_dict = {key_id: obj for key_id, obj in mem_dict.items()
+                          if key_id == f"{class_name}.{obj_id}"}
+        else:
+            found_dict = {}
+
+        if splited[0] == "":
+            print("** class name missing **")
+        elif splited[0] != "BaseModel":
+            print("** class doesn't exist **")
+        elif len(splited) == 1:
+            print("** instance id missing **")
+        elif found_dict == {}:
+            print("** no instance found**")
+        elif len(splited) == 2:
+            print("** attribute name missing **")
+        elif len(splited) == 3:
+            print("** value missing **")
+        else:
+            attr_name, attr_val = splited[2], splited[3]
+            found_obj = [obj for obj in found_dict.values()]  # extract object
+            obj = found_obj[0]
+
+            # convert the attribute value to it's appropraite type
+            attr_val = HBNBCommand.convector(attr_val)
+
+            obj.__dict__[attr_name] = attr_val
+            obj = obj.to_dict()
+            obj = BaseModel(**obj)
+            obj.save()
 
     def do_quit(self, line):
         """Quit command exits program"""

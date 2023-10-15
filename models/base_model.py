@@ -13,6 +13,7 @@ import importlib
 
 class BaseModel:
     """This model defines all common attributes/methods for other classes"""
+
     def __init__(self, *args, **kwargs):
         """Initializes all class instances
 
@@ -43,17 +44,19 @@ class BaseModel:
 
     def save(self):
         """Update the `updated_at` attribute"""
+        self.updated_at = datetime.now()
         storage = importlib.import_module("models.__init__").storage
         storage.save()
-        self.updated_at = datetime.now()
 
     def to_dict(self):
         """Return a dict of attribute names of the instance"""
-        self.__dict__['__class__'] = self.__class__.__name__
 
-        if isinstance(self.created_at, datetime) and isinstance(
-                self.updated_at, datetime):
-            self.created_at = self.created_at.isoformat()
-            self.updated_at = self.updated_at.isoformat()
+        clone = self.__dict__.copy()
+        clone['__class__'] = self.__class__.__name__
 
-        return self.__dict__
+        if isinstance(clone['created_at'], datetime) and isinstance(
+                clone['updated_at'], datetime):
+            clone['created_at'] = clone['created_at'].isoformat()
+            clone['updated_at'] = clone['updated_at'].isoformat()
+
+        return clone
