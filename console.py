@@ -7,6 +7,7 @@ The console program is defined here
 
 import cmd
 from models.base_model import BaseModel
+from models.user import User
 from models.__init__ import storage
 
 
@@ -14,6 +15,7 @@ class HBNBCommand(cmd.Cmd):
     """Command interpretrer class"""
 
     prompt = "(hbnb) "
+    domestic_classes = ["BaseModel", "User"]
 
     @staticmethod
     def mould(args, action):
@@ -32,7 +34,7 @@ class HBNBCommand(cmd.Cmd):
 
         if splited[0] == "":
             print("** class name missing **")
-        elif splited[0] != "BaseModel":
+        elif splited[0] not in HBNBCommand.domestic_classes:
             print("** class doesn't exist **")
         elif len(splited) == 1:
             print("** instance id missing **")
@@ -93,14 +95,20 @@ class HBNBCommand(cmd.Cmd):
                Enter class name to be created
                Upon success, the id of the insatnce will be printed out
         """
-        if class_name == "BaseModel":
-            new_obj = BaseModel()
-            new_obj.save()
-            print(new_obj.id)
-        elif class_name == "":
+
+        if class_name == "":
             print("** class name missing **")
-        else:
+        elif class_name not in HBNBCommand.domestic_classes:
             print("** class doesn't exist **")
+        else:
+            if class_name == "BaseModel":
+                new_obj = BaseModel()
+                new_obj.save()
+                print(new_obj.id)
+            elif class_name == "User":
+                new_obj = User()
+                new_obj.save()
+                print(new_obj.id)
 
     def do_show(self, args):
         """
@@ -191,7 +199,7 @@ class HBNBCommand(cmd.Cmd):
 
         if splited[0] == "":
             print("** class name missing **")
-        elif splited[0] != "BaseModel":
+        elif splited[0] not in HBNBCommand.domestic_classes:
             print("** class doesn't exist **")
         elif len(splited) == 1:
             print("** instance id missing **")
@@ -211,7 +219,9 @@ class HBNBCommand(cmd.Cmd):
 
             obj.__dict__[attr_name] = attr_val
             obj = obj.to_dict()
-            obj = BaseModel(**obj)
+            obj = storage.cls_selector(**obj)  # select the correct class
+            # to handle the deserialization of the object
+            print(obj)
             obj.save()
 
     def do_quit(self, line):
